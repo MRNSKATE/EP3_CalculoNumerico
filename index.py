@@ -117,7 +117,26 @@ def no_homogeneous_fronteir(f_function, k_function, q_function, u_inf_value, u_s
     print(b_vector)
     print(a_vector)
     print(c_vector)
+    range_control = []
+    d_vector = []
+    for i in range(number_analysis):
+        xi_pre = i*h
+        xi = xi_pre + h
+        xi_pos = xi + h
+        chapeu_one_line = "(x-"+str(xi_pre)+")/"+str(h)
+        chapeu_two_line = "("+str(xi_pos)+"-x)/"+str(h)
+        
+        integer_inf = solver_integral("("+f_function+")*("+chapeu_one_line+")", xi_pre, xi, "0", "1", 10)
+        integer_sup = solver_integral("("+f_function+")*("+chapeu_two_line+")", xi, xi_pos, "0", "1", 10)
 
+        range_control.append(xi_pre)
+        if i == number_analysis - 1:
+            range_control.append(xi)
+            range_control.append(xi_pos)
+
+        d_vector.append(integer_inf+integer_sup)
+    initial_solution(a_vector, b_vector, c_vector, d_vector, number_analysis)
+    print(range_control)
 
 if u_inf_value == 0 and u_sup_value == 1:
     homogeneous_fronteir(f_function, k_function, q_function, number_analysis)

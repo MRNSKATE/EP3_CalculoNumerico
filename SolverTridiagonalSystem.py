@@ -30,4 +30,5 @@ def solution_system(l,u,c,d,n):
 def initial_solution(a, b, c, d, n):
     l, u = vector_discovery_U_L(a,b,c,n)
     X = solution_system(l,u,c,d,n)
-    print("Matriz X resultante:\n", X)
+    print("Matriz alfa resultante:\n", X)
+    return X

@@ -15,9 +15,10 @@ print("Agora iremos analisar o intervalo em que a solução será proposta:")
 u_inf_value = float(input("Digite o intervalo inferior da função u(x): "))
 u_sup_value = float(input("Digite o intervalo superior da função u(x): "))
 
+number_analysis = int(input("Digite o número de subdivisões que você gostaria de analisar: "))
+
 validation_homogeneous_fronteir = input("As fronteiras do seu intervalo são homogêneas? \n Digite 's' para sim e 'n' para não: ")
 
-number_analysis = int(input("Digite o número de subdivisões que você gostaria de analisar: "))
 
 def module(value):
     if value < 0:
@@ -71,8 +72,8 @@ h = (u_sup_value-u_inf_value)/(number_analysis+1)
 if validation_homogeneous_fronteir == 'n' or validation_homogeneous_fronteir == 'N':
     value_inf = float(input("Digite o valor de u(0): "))
     value_sup = float(input("Digite o valor de u(x) na fronteira superior: "))
-    k_derivate = str(input("Digite a derivada da função k(x): "))
-    f_function = '('+ f_function + "+" + str(value_sup-value_inf) + "*" + k_derivative + "-" + q_function + "*(" + str(value_inf) + "+ x*(" + str(value_sup-u_inf_value) + ")))"
+    k_derivative = str(input("Digite a derivada da função k(x): "))
+    f_function = '('+ f_function + "+(" + str(value_sup-value_inf) + "*(" + k_derivative + "))-((" + q_function + ")*(" + str(value_inf) + "+ x*(" + str(value_sup-u_inf_value) + "))))"
 
 
 #Mapeando o produto interno do vetor b:

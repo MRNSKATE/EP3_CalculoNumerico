@@ -138,7 +138,5 @@ def no_homogeneous_fronteir(f_function, k_function, q_function, u_inf_value, u_s
     initial_solution(a_vector, b_vector, c_vector, d_vector, number_analysis)
     print(range_control)
 
-if u_inf_value == 0 and u_sup_value == 1:
-    homogeneous_fronteir(f_function, k_function, q_function, number_analysis)
-else:
-    no_homogeneous_fronteir(f_function, k_function, q_function, u_inf_value, u_sup_value, number_analysis)
+
+no_homogeneous_fronteir(f_function, k_function, q_function, u_inf_value, u_sup_value, number_analysis)

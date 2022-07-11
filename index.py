@@ -1,3 +1,5 @@
+#Marco Antônio Rudas Napoli, n° USP 11857970
+
 from math import *
 from cmath import cos, pi
 import numpy as np
@@ -15,128 +17,126 @@ u_sup_value = float(input("Digite o intervalo superior da função u(x): "))
 
 number_analysis = int(input("Digite o número de subdivisões que você gostaria de analisar: "))
 
-# inicialmente consideraremos x pertence a (0, 1) com u(0) = u(1) = 0
-def internal_multiplication(equal, xi_pre, xi, xi_pos, k_function, q_function, h):
-    if equal == False:
-        x_inf = 0
-        x_sup = 1
-        if xi > 0:
-            x_inf = xi
-        if xi_pos < 1:
-            x_sup = xi_pos
-        
-        integer_function = "(-1/("+ str(h**2) + "))*((" + k_function + ")+(" + q_function + ")*(" + str(xi_pos) + "-x)*(x-" + str(xi) + "))"
-        return solver_integral(integer_function, x_inf, x_sup, "0", "1", 10)
+validation_homogeneous_fronteir = input("As fronteiras do seu intervalo são homogêneas? \n Digite 's' para sim e 'n' para não: ")
+
+
+def module(value):
+    if value < 0:
+        return value*(-1)
     else:
-        x_inf = 0
-        x_sup = 1
-        if xi_pre > 0:
-            x_inf = xi_pre
-        if xi_pos < 1:
-            x_sup = xi_pos
-        
-        if xi_pre > 1 or xi_pos < 0:
-            return 0
-        
-        if xi>1:
-            integer_function = "((1/(" + str(h**2)+ "))*((" + k_function + ") + ( " +  q_function + ")*((x-" + str(xi_pre) + ")**2)))"
-            return solver_integral(integer_function, x_inf, x_sup, "0", "1", 10)
-        else:
-            first_integer_function = "((1/(" + str(h**2)+ "))*((" + k_function + ") + ( " +  q_function + ")*((x-" + str(xi_pre) + ")**2)))"
-            second_integer_function = "((1/(" + str(h**2)+ "))*((" + k_function + ") + ( " +  q_function + ")*((" + str(xi_pos) +" - x)**2)))"
+        return value
 
-            first_solve = solver_integral(first_integer_function, x_inf, xi, "0", "1", 10)
-            second_solve = solver_integral(second_integer_function, xi, x_sup, "0", "1", 10)
+def internal_multiplication_hat(equal, xi_pre, xi, xi_pos, h, k_function, q_function):
+    #Quando os valores do chapéu forem iguais
+    if equal == 0:
+        first_integer = '(' + str((1/h)**2) + '*(' + k_function + '))'
+        second_integer = '(' + str((-1/h)**2) + '*(' + k_function + '))'
+        third_integer = '(' + str((1/h)**2) + '*((x-' + str(xi_pre) +')**2)*(' + q_function + '))'
+        fourth_integer = '(' + str((1/h)**2) + '*(('+ str(xi_pos) + '-x)**2)*(' + q_function + '))'
 
-            return first_solve+second_solve
-   
-def homogeneous_fronteir(f_function, k_function, q_function, number_analysis):
-    h = 1/(number_analysis+1)
-    #Formação dos vetores que participarão do sistema tridiagonal 
-    b_vector = []
-    for i in range(number_analysis):
-        b_vector.append(2/h)
-
-    a_vector = [0]
-    for i in range(number_analysis-1):
-        a_vector.append(-1/h)
-
-    c_vector = []
-    for i in range(number_analysis-1):
-        c_vector.append(-1/h)
-    c_vector.append(0)
-
-    #Cálculo dos produtos iternos entre Q(x) e a função chapéu
-    range_control = []
-    d_vector = []
-    for i in range(number_analysis):
-        xi_pre = i*h
-        xi = xi_pre + h
-        xi_pos = xi + h
-        chapeu_one_line = "(x-"+str(xi_pre)+")/"+str(h)
-        chapeu_two_line = "("+str(xi_pos)+"-x)/"+str(h)
-        
-        integer_inf = solver_integral("("+f_function+")*("+chapeu_one_line+")", xi_pre, xi, "0", "1", 10)
-        integer_sup = solver_integral("("+f_function+")*("+chapeu_two_line+")", xi, xi_pos, "0", "1", 10)
-
-        range_control.append(xi_pre)
-        if i == number_analysis - 1:
-            range_control.append(xi)
-            range_control.append(xi_pos)
-
-        d_vector.append(integer_inf+integer_sup)
-
-    #Resolução do sistema tridiagonal e descoberta dos coeficientes de Un(x) = sum(alfa*chapéu)
-    initial_solution(a_vector, b_vector, c_vector, d_vector, number_analysis)
-    print(range_control)
-
-def no_homogeneous_fronteir(f_function, k_function, q_function, u_inf_value, u_sup_value, number_analysis):
-    k_derivative = str(input("Digite a derivada da função k(x): "))
-    new_f_function = f_function + "+" + str(u_sup_value-u_inf_value) + "*" + k_derivative + "-" + q_function + "*(" + str(u_inf_value) + "+ x*(" + str(u_sup_value-u_inf_value) + "))"
+        total_value = solver_integral(first_integer, xi_pre, xi, '0', '1', 6) + solver_integral(second_integer, xi, xi_pos, '0', '1', 6) + solver_integral(third_integer, xi_pre, xi, '0', '1', 6) + solver_integral(fourth_integer, xi, xi_pos, '0', '1', 6)
+        return total_value
     
-    h = 1/(number_analysis+1)
-    #Mapeando o produto interno do vetor b:
-    b_vector = []
-    for i in range(number_analysis):
-        xi_pre = i*h
-        xi = xi_pre + h
-        xi_pos = xi + h
-        result = internal_multiplication(True, xi_pre, xi, xi_pos, k_function, q_function, h)
-        b_vector.append(result)
-    #Mapeando o produto interno do vetor a e c:
-    a_vector = [0]
-    c_vector = []
-    for i in range(number_analysis - 1):
-        xi_pre = (i+1)*h
-        xi = xi_pre + h
-        xi_pos = xi + h
-        result = internal_multiplication(False, xi_pre, xi, xi_pos, k_function, q_function, h)
-        a_vector.append(result)
-        c_vector.append(result)
-    c_vector.append(0)
-    print(b_vector)
-    print(a_vector)
-    print(c_vector)
-    range_control = []
-    d_vector = []
-    for i in range(number_analysis):
-        xi_pre = i*h
-        xi = xi_pre + h
-        xi_pos = xi + h
-        chapeu_one_line = "(x-"+str(xi_pre)+")/"+str(h)
-        chapeu_two_line = "("+str(xi_pos)+"-x)/"+str(h)
-        
-        integer_inf = solver_integral("("+f_function+")*("+chapeu_one_line+")", xi_pre, xi, "0", "1", 10)
-        integer_sup = solver_integral("("+f_function+")*("+chapeu_two_line+")", xi, xi_pos, "0", "1", 10)
+    #Quando for para a diagonal ai,i+1:
+    elif equal == 1:
+        first_integer = '(' + str(-((1/h)**2)) + '*(' + k_function + '))'
+        second_integer = '(' + str((1/h)**2) + '*(('+ str(xi_pos) + '- x) * (x - ' + str(xi) + '))*(' + q_function +'))'
 
-        range_control.append(xi_pre)
-        if i == number_analysis - 1:
-            range_control.append(xi)
-            range_control.append(xi_pos)
+        total_value = solver_integral(first_integer, xi, xi_pos, '0', '1', 6) + solver_integral(second_integer, xi, xi_pos, '0', '1', 6)
+        return total_value
+    
+    elif equal == 2:
+        first_integer = '(' + str(-((1/h)**2)) + '*(' + k_function + '))'
+        second_integer = '(' + str((1/h)**2) + '*(('+ str(xi) + '- x) * (x - ' + str(xi_pre) + '))*(' + q_function +'))'
 
-        d_vector.append(integer_inf+integer_sup)
-    initial_solution(a_vector, b_vector, c_vector, d_vector, number_analysis)
-    print(range_control)
+        total_value = solver_integral(first_integer, xi_pre, xi, '0', '1', 6) + solver_integral(second_integer, xi_pre, xi, '0', '1', 6)
+        return total_value
+
+def internal_multiplication_function(xi_pre, xi, xi_pos, h, f_function):
+    first_integer = '('+ str(1/h)+'*(x-'+ str(xi_pre) + ')*('+ f_function +'))'
+    second_integer = '('+ str(1/h)+'*('+str(xi_pos) + '- x )*('+ f_function +'))'
+
+    total_value = solver_integral(first_integer, xi_pre, xi, '0', '1', 6) + solver_integral(second_integer, xi, xi_pos, '0', '1', 6)
+    return total_value
+
+def error_validation(our_value, analysis_value_function):
+    real_function = str(input("Digite a solução exata da equação diferencial: (utilize x como variável) => "))
+    x = analysis_value_function
+    real_result = eval(real_function)
+    
+    print(f"O resultado verdadeiro é: {real_result}. Logo, o erro é da ordem de {module(our_value-real_result)}")
+#Consrtrução do vetor b
+h = (u_sup_value-u_inf_value)/(number_analysis+1)
+
+#Definindo novo f_function nos casos de fronteiras não homogêneas
+if validation_homogeneous_fronteir == 'n' or validation_homogeneous_fronteir == 'N':
+    value_inf = float(input("Digite o valor de u(0): "))
+    value_sup = float(input("Digite o valor de u(x) na fronteira superior: "))
+    k_derivative = str(input("Digite a derivada da função k(x): "))
+    f_function = '('+ f_function + "+(" + str(value_sup-value_inf) + "*(" + k_derivative + "))-((" + q_function + ")*(" + str(value_inf) + "+ x*(" + str(value_sup-u_inf_value) + "))))"
 
 
-no_homogeneous_fronteir(f_function, k_function, q_function, u_inf_value, u_sup_value, number_analysis)
+#Mapeando o produto interno do vetor b:
+b_vector = []
+for i in range(number_analysis):
+    xi_pre = i*h
+    xi = xi_pre + h
+    xi_pos = xi + h
+
+    value = internal_multiplication_hat(0, xi_pre, xi, xi_pos, h, k_function, q_function)
+
+    b_vector.append(value)
+
+#Mapeando o produto interno do vetor c:
+c_vector = []
+for i in range(number_analysis):
+    xi_pre = i*h
+    xi = xi_pre + h
+    xi_pos = xi + h
+
+    value = internal_multiplication_hat(1, xi_pre, xi, xi_pos, h, k_function, q_function)
+
+    c_vector.append(value)
+c_vector.append(0)
+
+#Mapeando o produto interno do vetor a:
+a_vector = [0]
+xi_control = []
+for i in range(number_analysis):
+    xi_pre = i*h
+    xi = xi_pre + h
+    xi_pos = xi + h
+
+    value = internal_multiplication_hat(2, xi_pre, xi, xi_pos, h, k_function, q_function)
+
+    a_vector.append(value)
+    xi_control.append(xi_pre)
+
+    if i == (number_analysis-1):
+        xi_control.append(xi)
+        xi_control.append(xi_pos)
+
+#Mapeando o produto interno do vetor d:
+d_vector = []
+for i in range(number_analysis):
+    xi_pre = i*h
+    xi = xi_pre + h
+    xi_pos = xi + h
+
+    value = internal_multiplication_function(xi_pre, xi, xi_pos, h, f_function)
+
+    d_vector.append(value)
+
+alfa_matrix = initial_solution(a_vector, b_vector, c_vector, d_vector, number_analysis)
+
+analysis_value_function = float(input("Sua função foi computada, digite o valor, dentro do intervalo já citado, que você gostaria de analisar: "))
+
+value_result_to_analysis = 0
+for i in range(len(xi_control)):
+    if analysis_value_function > xi_control[i] and analysis_value_function < xi_control[i+1]:
+        first_sum = alfa_matrix[i]*(xi_control[i+2] - analysis_value_function)/h
+        second_sum = alfa_matrix[i+1]*(analysis_value_function - xi_control[i+1])/h
+        value_result_to_analysis = first_sum+second_sum
+
+print(f"O valor encontrado para o x em questão é de {value_result_to_analysis}")
+error_validation(value_result_to_analysis, analysis_value_function)

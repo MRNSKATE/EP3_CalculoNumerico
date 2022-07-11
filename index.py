@@ -30,7 +30,7 @@ def internal_multiplication_hat(equal, xi_pre, xi, xi_pos, h, k_function, q_func
     #Quando os valores do chapéu forem iguais
     if equal == 0:
         first_integer = '(' + str((1/h)**2) + '*(' + k_function + '))'
-        second_integer = '(' + str((-1/h)**2) + '*(' + k_function + '))'
+        second_integer = '(' + str((1/h)**2) + '*(' + k_function + '))'
         third_integer = '(' + str((1/h)**2) + '*((x-' + str(xi_pre) +')**2)*(' + q_function + '))'
         fourth_integer = '(' + str((1/h)**2) + '*(('+ str(xi_pos) + '-x)**2)*(' + q_function + '))'
 
@@ -77,6 +77,7 @@ if validation_homogeneous_fronteir == 'n' or validation_homogeneous_fronteir == 
 
 
 #Mapeando o produto interno do vetor b:
+xi_control = []
 b_vector = []
 for i in range(number_analysis):
     xi_pre = i*h
@@ -87,9 +88,15 @@ for i in range(number_analysis):
 
     b_vector.append(value)
 
+    xi_control.append(xi_pre)
+
+    if i == (number_analysis-1):
+        xi_control.append(xi)
+        xi_control.append(xi_pos)
+
 #Mapeando o produto interno do vetor c:
 c_vector = []
-for i in range(number_analysis):
+for i in range(number_analysis-1):
     xi_pre = i*h
     xi = xi_pre + h
     xi_pos = xi + h
@@ -101,8 +108,7 @@ c_vector.append(0)
 
 #Mapeando o produto interno do vetor a:
 a_vector = [0]
-xi_control = []
-for i in range(number_analysis):
+for i in range(number_analysis-1):
     xi_pre = i*h
     xi = xi_pre + h
     xi_pos = xi + h
@@ -110,11 +116,6 @@ for i in range(number_analysis):
     value = internal_multiplication_hat(2, xi_pre, xi, xi_pos, h, k_function, q_function)
 
     a_vector.append(value)
-    xi_control.append(xi_pre)
-
-    if i == (number_analysis-1):
-        xi_control.append(xi)
-        xi_control.append(xi_pos)
 
 #Mapeando o produto interno do vetor d:
 d_vector = []
@@ -128,15 +129,22 @@ for i in range(number_analysis):
     d_vector.append(value)
 
 alfa_matrix = initial_solution(a_vector, b_vector, c_vector, d_vector, number_analysis)
-
 analysis_value_function = float(input("Sua função foi computada, digite o valor, dentro do intervalo já citado, que você gostaria de analisar: "))
 
+#OLHAR MELHOR
 value_result_to_analysis = 0
 for i in range(len(xi_control)):
-    if analysis_value_function > xi_control[i] and analysis_value_function < xi_control[i+1]:
+    if analysis_value_function < h:
+        value_result_to_analysis = alfa_matrix[0]*(h - analysis_value_function)/h
+    
+    elif analysis_value_function > xi_control[len(xi_control) - 2]:
+        value_result_to_analysis = alfa_matrix[-1]*(xi_control[len(xi_control) - 1] - analysis_value_function)/h
+    
+    elif analysis_value_function > xi_control[i] and analysis_value_function < xi_control[i+1]:
         first_sum = alfa_matrix[i]*(xi_control[i+2] - analysis_value_function)/h
         second_sum = alfa_matrix[i+1]*(analysis_value_function - xi_control[i+1])/h
         value_result_to_analysis = first_sum+second_sum
+        
 
 print(f"O valor encontrado para o x em questão é de {value_result_to_analysis}")
 error_validation(value_result_to_analysis, analysis_value_function)

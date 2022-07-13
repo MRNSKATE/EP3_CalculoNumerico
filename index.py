@@ -131,7 +131,7 @@ for i in range(number_analysis):
 alfa_matrix = initial_solution(a_vector, b_vector, c_vector, d_vector, number_analysis)
 analysis_value_function = float(input("Sua função foi computada, digite o valor, dentro do intervalo já citado, que você gostaria de analisar: "))
 
-#OLHAR MELHOR
+
 value_result_to_analysis = 0
 for i in range(len(xi_control)):
     if analysis_value_function < h:
@@ -148,3 +148,5 @@ for i in range(len(xi_control)):
 
 print(f"O valor encontrado para o x em questão é de {value_result_to_analysis}")
 error_validation(value_result_to_analysis, analysis_value_function)
+
+input()
